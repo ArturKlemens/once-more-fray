@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dkwvcd3qmsyix"]
+[gd_scene load_steps=4 format=3 uid="uid://dkwvcd3qmsyix"]
 
 [ext_resource type="PackedScene" uid="uid://20rdeb60vqmo" path="res://scenes/platform.tscn" id="1_2xmlx"]
 [ext_resource type="PackedScene" uid="uid://bx0oqtvk82pyq" path="res://scenes/player.tscn" id="2_ovvpu"]
+[ext_resource type="PackedScene" uid="uid://cix77n44ii37u" path="res://scenes/goal.tscn" id="3_nd8ok"]
 
 [node name="Level" type="Node2D"]
 
@@ -14,5 +15,16 @@ position = Vector2(579, 579)
 [node name="Platform3" parent="." instance=ExtResource("1_2xmlx")]
 position = Vector2(979, 504)
 
+[node name="Platform4" parent="." instance=ExtResource("1_2xmlx")]
+position = Vector2(865, 696)
+scale = Vector2(6.195, 1)
+
+[node name="Goal" parent="." instance=ExtResource("3_nd8ok")]
+position = Vector2(182, 559)
+
 [node name="Player" parent="." instance=ExtResource("2_ovvpu")]
 position = Vector2(110, 618)
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position = Vector2(287, -127)
+zoom = Vector2(1.48, 1.48)

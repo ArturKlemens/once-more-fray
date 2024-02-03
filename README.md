@@ -42,9 +42,9 @@ Overall design: the game tries to help you all the time
 
 Ok, I need to focus a bit on the scope of the game. What I need:
 	- snappy character controller: move, jump + coyote time, halved gravity jump peak
-		- done: move, jump
-	- camera controller: static vs follow the player? Since I need to script its movement, perhaps it's better
-	if it always follows the player
+		- done: all
+	- camera controller: static
+		- done: camera, static
 	- one level (A) with: one type of static platforms, one trap, one "power-up" that triggers the "cutscenes"
 		- done:
 	- one hospital level (B0) with family NPCs
