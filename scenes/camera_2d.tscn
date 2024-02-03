@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://dky8yw3o6btlp"]
+
+[sub_resource type="GDScript" id="GDScript_tab3j"]
+resource_name = "Camera2D"
+script/source = "extends Camera2D
+@onready var playerPosition = $Node2D.Player.position
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	position = playerPosition
+"
+
+[node name="Camera2D" type="Camera2D"]
+script = SubResource("GDScript_tab3j")

@@ -11,11 +11,8 @@ script/source = "extends CharacterBody2D
 @export var JUMP_VELOCITY = -200.0
 @export var ACCEL_TIME: float = 4.0
 @export var BREAK_FACTOR: float = 5.0
-@export var GRAVITY_MULTIPLIER: float = 1.5
-@export var TERMINAL_VELOCITY_MULTIPLIER: float = 1.5
-@export var GRADUAL_JUMP_MULTIPLIER: float = 0.25
-
 var ACCEL = SPEED / ACCEL_TIME
+var Engine.time_scale = 0.25
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
 
@@ -24,39 +21,31 @@ func _physics_process(delta):
 	# Add the gravity.
 	if not is_on_floor():
 		velocity.y += gravity * delta
-		
-	# How to implement different gravity in an arc shape?
-	# the player has a position Y, when they jump, Y increases
-	# at one point, Y reaches the maximum
-	# immediately after, y starts to decrease according to the gravity setting
-	# therefore, I need to identify the point when Y is max
-	# and decrease Y faster starting with that point and ending with touching the floor
-	
-		# Solution: velocity.y is always negative while going up, and then positive while falling
-		if velocity.y >= 0:
-			velocity.y += gravity * delta * GRAVITY_MULTIPLIER
-	
-	# Terminal velocity while falling
-	velocity.y = clamp(velocity.y, JUMP_VELOCITY, -JUMP_VELOCITY * TERMINAL_VELOCITY_MULTIPLIER)
 
 	# Handle jump.
 	if Input.is_action_pressed(\"ui_accept\") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 	
+	# How to implement different gravity in an arc shape?
+	# the player has a position Y
+	# when they jump, Y increases
+	# at one point, Y reaches the maximum
+	# immediately after, y starts to decrease according to the gravity setting
+	# therefore, I need to identify the point when Y is max
+	# and decrease Y faster starting with that point and ending with touching the floor
+	
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	var direction = Input.get_axis(\"ui_left\", \"ui_right\")
-	
-	# Without checking for 0, there are bugs when rapidly tapping left/right
 	if direction != 0:
-		# Acceleration
 		velocity.x = move_toward(velocity.x, SPEED, ACCEL * direction)
 		velocity.x = clamp(velocity.x, -SPEED, SPEED)
 	else:
-		# Deceleration
 		velocity.x = move_toward(velocity.x, 0, SPEED / BREAK_FACTOR)
 
 	move_and_slide()
+	
+	print(velocity.y)
 "
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6l5xa"]
@@ -81,6 +70,8 @@ func _process(delta):
 script = SubResource("GDScript_5cdeg")
 SPEED = 350.0
 JUMP_VELOCITY = -400.0
+ACCEL_TIME = null
+BREAK_FACTOR = null
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
 shape = SubResource("RectangleShape2D_6l5xa")
