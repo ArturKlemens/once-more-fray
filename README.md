@@ -37,3 +37,19 @@ Jump corner correction - if you jump up and hit a corner, the game will move you
 Jump buffering - press and hold the jump button a short time before landing will make you jump on the same frame as when you land
 
 Overall design: the game tries to help you all the time
+
+---
+
+Ok, I need to focus a bit on the scope of the game. What I need:
+	- snappy character controller: move, jump + coyote time, halved gravity jump peak
+		- done: move, jump
+	- one level (A) with: one type of static platforms, one trap, one "power-up" that triggers the "cutscenes"
+		- done:
+	- one hospital level (B0) with family NPCs
+		- done:
+	- main menu
+		- done:
+	- transitions between levels: A -> B0 -> A -> B1 -> A -> B2 -> main menu
+		- done:
+	- art for: character, platform, level A background, level B0, family, letter, trap, power-up, main menu
+		- done:
