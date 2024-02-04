@@ -23,11 +23,11 @@ script/source = "extends CharacterBody2D
 @export var LAND_SQUISH_FACTOR_X: float = 0.45
 @export var LAND_SQUISH_FACTOR_Y: float = 0.25 # transform the sprite when landing
 
-@export var COYOTE_MAX_TIME: float = 0.15 # coyote go brrrr
-var is_coyote_time: bool
+@export var COYOTE_MAX_TIME: float = 1.2 # coyote go brrrr
 var coyote_time: float
+var is_coyote_time: bool
 
-@export var JUMP_BUFFER_DURATION: float = 0.1
+@export var JUMP_BUFFER_DURATION: float = 0.35
 var jump_timer: float
 var is_jump_buffered: bool
 
@@ -45,17 +45,16 @@ var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
 enum States {ON_FLOOR, IN_AIR, BUFFER}
 var _state : int = States.ON_FLOOR
 
-@warning_ignore(\"shadowed_variable\")
 func change_state(new_state: int, jump_timer: float = 0.0) -> void:
-	@warning_ignore(\"unused_variable\")
 	var previous_state := _state
 	_state = new_state
-	print(previous_state, new_state)
+	print(previous_state, _state)
 	match _state:
 		States.ON_FLOOR:
 			pass
 		States.IN_AIR:
 			is_jump_buffered = false
+			#jump_timer = 0.0
 		States.BUFFER:
 			if jump_timer < JUMP_BUFFER_DURATION:
 				is_jump_buffered = true
@@ -66,22 +65,16 @@ func change_state(new_state: int, jump_timer: float = 0.0) -> void:
 func _physics_process(delta):
 	# Add the gravity.
 	# Define what a jump/land is: player is on the floor and presses spacebar/player is in air and touches floor
-	#print(coyote_time, is_coyote_time)
 	var is_jumping: bool = _state == States.ON_FLOOR and Input.is_action_just_pressed(\"ui_accept\")
 	var is_landed: bool = ( _state == States.IN_AIR or _state == States.BUFFER ) and is_on_floor()
-	var is_buffer: bool = _state == States.IN_AIR and Input.is_action_just_pressed(\"ui_accept\") and not is_coyote_time
-	var is_falling: bool = _state == States.ON_FLOOR and velocity.y != 0 and not is_jumping
-	
+	var is_buffer: bool = _state == States.IN_AIR and Input.is_action_just_pressed(\"ui_accept\")
+
+		
 	if is_landed:
-		coyote_time = 0.0
 		change_state(0)
-		_squish_land(sprite)
 		if is_jump_buffered:
 			_jump()
-		
-	if is_jumping:
-		change_state(1)
-		_squish_jump(sprite)
+		_squish_land(sprite)
 
 	if is_buffer:
 		change_state(2, jump_timer)
@@ -89,14 +82,10 @@ func _physics_process(delta):
 		
 	if _state == States.BUFFER:
 		jump_timer += delta
-		is_coyote_time = false # THIS IS WHERE THE COYOTE TIME BUG WAS OMG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
 	if is_on_floor():
 		is_coyote_time = true
 
-	if is_falling:
-		change_state(1)
-			
 	if not is_on_floor():
 		coyote_time += delta
 		if coyote_time > COYOTE_MAX_TIME:
@@ -122,11 +111,14 @@ func _physics_process(delta):
 
 	# Handle jump.
 	if ( Input.is_action_just_pressed(\"ui_accept\") ) and ( is_on_floor() or is_coyote_time ):
-		change_state(1)
-		#print(\"A\")
 		_jump()
-
-
+		
+	if is_jumping:
+		_squish_jump(sprite)
+		
+	#if is_landed:
+		#_squish_land(sprite)
+	
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	var direction = Input.get_axis(\"ui_left\", \"ui_right\")
@@ -147,13 +139,12 @@ func _physics_process(delta):
 	move_and_slide()
 
 func _jump():
-		is_jump_buffered = false
-		velocity.y = JUMP_VELOCITY
+		change_state(1)
 		is_coyote_time = false
 		coyote_time = 0.0
+		velocity.y = JUMP_VELOCITY
 
 # Squish sprite when jumping
-@warning_ignore(\"shadowed_variable\")
 func _squish_jump(sprite):
 	sprite.scale.x = move_toward(sprite.scale.x, sprite.scale.x + JUMP_SQUISH_FACTOR, JUMP_SQUISH_FACTOR)
 	sprite.scale.y = move_toward(sprite.scale.y, sprite.scale.y - JUMP_SQUISH_FACTOR, JUMP_SQUISH_FACTOR)
@@ -161,7 +152,6 @@ func _squish_jump(sprite):
 	sprite.scale.x = move_toward(sprite.scale.x, 1, JUMP_SQUISH_FACTOR)
 	sprite.scale.y = move_toward(sprite.scale.y, 1, JUMP_SQUISH_FACTOR)
 	
-@warning_ignore(\"shadowed_variable\")
 func _squish_land(sprite):
 	sprite.scale.x = move_toward(sprite.scale.x, sprite.scale.x + LAND_SQUISH_FACTOR_X, LAND_SQUISH_FACTOR_X)
 	sprite.scale.y = move_toward(sprite.scale.y, sprite.scale.y - LAND_SQUISH_FACTOR_Y, LAND_SQUISH_FACTOR_Y)

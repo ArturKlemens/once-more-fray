@@ -23,7 +23,7 @@ script/source = "extends CharacterBody2D
 @export var LAND_SQUISH_FACTOR_X: float = 0.45
 @export var LAND_SQUISH_FACTOR_Y: float = 0.25 # transform the sprite when landing
 
-@export var COYOTE_MAX_TIME: float = 0.15 # coyote go brrrr
+@export var COYOTE_MAX_TIME: float = 1.2 # coyote go brrrr
 var is_coyote_time: bool
 var coyote_time: float
 
@@ -50,13 +50,14 @@ func change_state(new_state: int, jump_timer: float = 0.0) -> void:
 	@warning_ignore(\"unused_variable\")
 	var previous_state := _state
 	_state = new_state
-	print(previous_state, new_state)
+	#print(previous_state, new_state)
 	match _state:
 		States.ON_FLOOR:
 			pass
 		States.IN_AIR:
 			is_jump_buffered = false
 		States.BUFFER:
+			is_coyote_time = false
 			if jump_timer < JUMP_BUFFER_DURATION:
 				is_jump_buffered = true
 			else:
@@ -67,13 +68,12 @@ func _physics_process(delta):
 	# Add the gravity.
 	# Define what a jump/land is: player is on the floor and presses spacebar/player is in air and touches floor
 	#print(coyote_time, is_coyote_time)
+
 	var is_jumping: bool = _state == States.ON_FLOOR and Input.is_action_just_pressed(\"ui_accept\")
 	var is_landed: bool = ( _state == States.IN_AIR or _state == States.BUFFER ) and is_on_floor()
-	var is_buffer: bool = _state == States.IN_AIR and Input.is_action_just_pressed(\"ui_accept\") and not is_coyote_time
+	var is_buffer: bool = _state == States.IN_AIR and Input.is_action_just_pressed(\"ui_accept\")
 	var is_falling: bool = _state == States.ON_FLOOR and velocity.y != 0 and not is_jumping
-	
 	if is_landed:
-		coyote_time = 0.0
 		change_state(0)
 		_squish_land(sprite)
 		if is_jump_buffered:
@@ -89,7 +89,10 @@ func _physics_process(delta):
 		
 	if _state == States.BUFFER:
 		jump_timer += delta
-		is_coyote_time = false # THIS IS WHERE THE COYOTE TIME BUG WAS OMG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
+	if _state == States.IN_AIR:
+		#coyote_time += delta
+		pass
 	
 	if is_on_floor():
 		is_coyote_time = true
@@ -122,10 +125,10 @@ func _physics_process(delta):
 
 	# Handle jump.
 	if ( Input.is_action_just_pressed(\"ui_accept\") ) and ( is_on_floor() or is_coyote_time ):
-		change_state(1)
 		#print(\"A\")
 		_jump()
-
+		is_coyote_time = false
+		coyote_time = 0.0
 
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
@@ -149,8 +152,6 @@ func _physics_process(delta):
 func _jump():
 		is_jump_buffered = false
 		velocity.y = JUMP_VELOCITY
-		is_coyote_time = false
-		coyote_time = 0.0
 
 # Squish sprite when jumping
 @warning_ignore(\"shadowed_variable\")
