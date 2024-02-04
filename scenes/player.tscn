@@ -8,6 +8,7 @@ script/source = "extends CharacterBody2D
 
 @export var SPEED: float = 150.0
 @export var JUMP_VELOCITY: float = -200.0
+@export var AIR_BRAKE: float = 0.75
 
 @export var GRAVITY_UP_FACTOR: float = 0.85 # when before jump apex
 @export var GRAVITY_DOWN_FACTOR: float = 1.5 # when past jump apex
@@ -45,52 +46,51 @@ var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
 enum States {ON_FLOOR, IN_AIR, BUFFER}
 var _state : int = States.ON_FLOOR
 
-@warning_ignore(\"shadowed_variable\")
 func change_state(new_state: int, jump_timer: float = 0.0) -> void:
-	@warning_ignore(\"unused_variable\")
-	var previous_state := _state
+	var _previous_state := _state
 	_state = new_state
-	print(previous_state, new_state)
 	match _state:
 		States.ON_FLOOR:
 			pass
 		States.IN_AIR:
 			is_jump_buffered = false
 		States.BUFFER:
+			is_coyote_time = false
 			if jump_timer < JUMP_BUFFER_DURATION:
 				is_jump_buffered = true
 			else:
 				is_jump_buffered = false
 
-
+# new bug has dropped
+# it is possible to trigger jump 2 times if you press the key very fast
 func _physics_process(delta):
 	# Add the gravity.
 	# Define what a jump/land is: player is on the floor and presses spacebar/player is in air and touches floor
 	#print(coyote_time, is_coyote_time)
 	var is_jumping: bool = _state == States.ON_FLOOR and Input.is_action_just_pressed(\"ui_accept\")
 	var is_landed: bool = ( _state == States.IN_AIR or _state == States.BUFFER ) and is_on_floor()
-	var is_buffer: bool = _state == States.IN_AIR and Input.is_action_just_pressed(\"ui_accept\") and not is_coyote_time
+	var is_buffer: bool = _state == States.IN_AIR and Input.is_action_just_pressed(\"ui_accept\") and not is_coyote_time  # THIS IS WHERE THE COYOTE TIME BUG WAS OMG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	var is_falling: bool = _state == States.ON_FLOOR and velocity.y != 0 and not is_jumping
+	
+	if _state == States.BUFFER:
+		jump_timer += delta
+		#is_coyote_time = false # THIS IS WHERE THE COYOTE TIME BUG WAS OMG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
 	if is_landed:
 		coyote_time = 0.0
 		change_state(0)
-		_squish_land(sprite)
+		_squish_land()
 		if is_jump_buffered:
 			_jump()
 		
 	if is_jumping:
 		change_state(1)
-		_squish_jump(sprite)
+		_squish_jump()
 
 	if is_buffer:
 		change_state(2, jump_timer)
 		jump_timer = 0.0
 		
-	if _state == States.BUFFER:
-		jump_timer += delta
-		is_coyote_time = false # THIS IS WHERE THE COYOTE TIME BUG WAS OMG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	
 	if is_on_floor():
 		is_coyote_time = true
 
@@ -153,16 +153,14 @@ func _jump():
 		coyote_time = 0.0
 
 # Squish sprite when jumping
-@warning_ignore(\"shadowed_variable\")
-func _squish_jump(sprite):
+func _squish_jump():
 	sprite.scale.x = move_toward(sprite.scale.x, sprite.scale.x + JUMP_SQUISH_FACTOR, JUMP_SQUISH_FACTOR)
 	sprite.scale.y = move_toward(sprite.scale.y, sprite.scale.y - JUMP_SQUISH_FACTOR, JUMP_SQUISH_FACTOR)
 	await get_tree().create_timer(SQUISH_TIME).timeout
 	sprite.scale.x = move_toward(sprite.scale.x, 1, JUMP_SQUISH_FACTOR)
 	sprite.scale.y = move_toward(sprite.scale.y, 1, JUMP_SQUISH_FACTOR)
 	
-@warning_ignore(\"shadowed_variable\")
-func _squish_land(sprite):
+func _squish_land():
 	sprite.scale.x = move_toward(sprite.scale.x, sprite.scale.x + LAND_SQUISH_FACTOR_X, LAND_SQUISH_FACTOR_X)
 	sprite.scale.y = move_toward(sprite.scale.y, sprite.scale.y - LAND_SQUISH_FACTOR_Y, LAND_SQUISH_FACTOR_Y)
 	await get_tree().create_timer(SQUISH_TIME).timeout
