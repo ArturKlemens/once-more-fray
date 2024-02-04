@@ -27,7 +27,7 @@ script/source = "extends CharacterBody2D
 var coyote_time: float
 var is_coyote_time: bool
 
-@export var JUMP_BUFFER_DURATION: float = 0.35
+@export var JUMP_BUFFER_DURATION: float = 0.25
 var jump_timer: float
 var is_jump_buffered: bool
 
@@ -45,59 +45,44 @@ var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
 enum States {ON_FLOOR, IN_AIR, BUFFER}
 var _state : int = States.ON_FLOOR
 
-func change_state(new_state: int, jump_timer: float = 0.0) -> void:
+func change_state(new_state: int, delta) -> void:
 	var previous_state := _state
 	_state = new_state
-	print(previous_state, _state)
+	
 	match _state:
 		States.ON_FLOOR:
-			pass
+			is_jump_buffered = false
 		States.IN_AIR:
 			is_jump_buffered = false
-			#jump_timer = 0.0
 		States.BUFFER:
-			if jump_timer < JUMP_BUFFER_DURATION:
+			jump_timer += delta
+			if jump_timer <= JUMP_BUFFER_DURATION:
 				is_jump_buffered = true
 			else:
 				is_jump_buffered = false
-
+			
 
 func _physics_process(delta):
 	# Add the gravity.
 	# Define what a jump/land is: player is on the floor and presses spacebar/player is in air and touches floor
 	var is_jumping: bool = _state == States.ON_FLOOR and Input.is_action_just_pressed(\"ui_accept\")
-	var is_landed: bool = ( _state == States.IN_AIR or _state == States.BUFFER ) and is_on_floor()
+	var is_landed: bool = _state == States.IN_AIR and is_on_floor()
 	var is_buffer: bool = _state == States.IN_AIR and Input.is_action_just_pressed(\"ui_accept\")
-
-		
-	if is_landed:
-		change_state(0)
-		if is_jump_buffered:
-			print(jump_timer)
-			_jump()
-		_squish_land(sprite)
-
-	if is_buffer:
-		change_state(2, jump_timer)
-		jump_timer = 0.0
-		
-	if _state == States.BUFFER:
-		jump_timer += delta
 	
 	if is_on_floor():
 		is_coyote_time = true
-		#change_state(0)
+		change_state(0, delta)
 	if not is_on_floor():
+		change_state(1, delta)
 		coyote_time += delta
 		if coyote_time > COYOTE_MAX_TIME:
 			is_coyote_time = false
 			coyote_time = 0.0
-		
 		if velocity.y < 0:
 			velocity.y += gravity * delta * GRAVITY_UP_FACTOR
 		if velocity.y >= 0:
 			velocity.y += gravity * delta * GRAVITY_DOWN_FACTOR
-
+	print(jump_timer)
 	# How to implement different gravity in an arc shape?
 	# the player has a position Y, when they jump, Y increases
 	# at one point, Y reaches the maximum
@@ -112,13 +97,13 @@ func _physics_process(delta):
 
 	# Handle jump.
 	if ( Input.is_action_just_pressed(\"ui_accept\") ) and ( is_on_floor() or is_coyote_time ):
-		_jump()
-		
+		_jump(delta)
+	
 	if is_jumping:
 		_squish_jump(sprite)
 		
-	#if is_landed:
-		#_squish_land(sprite)
+	if is_landed:
+		_squish_land(sprite)
 	
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
@@ -139,8 +124,8 @@ func _physics_process(delta):
 
 	move_and_slide()
 
-func _jump():
-		change_state(1)
+func _jump(delta):
+		change_state(1, delta)
 		is_coyote_time = false
 		coyote_time = 0.0
 		velocity.y = JUMP_VELOCITY

@@ -53,8 +53,9 @@ func change_state(new_state: int, jump_timer: float = 0.0) -> void:
 		States.ON_FLOOR:
 			pass
 		States.IN_AIR:
-			is_jump_buffered = false
+			#is_jump_buffered = false
 			#jump_timer = 0.0
+			pass
 		States.BUFFER:
 			if jump_timer < JUMP_BUFFER_DURATION:
 				is_jump_buffered = true
