@@ -63,6 +63,7 @@ func change_state(new_state: int, jump_timer: float = 0.0) -> void:
 
 # new bug has dropped
 # it is possible to trigger jump 2 times if you press the key very fast
+
 func _physics_process(delta):
 	# Add the gravity.
 	# Define what a jump/land is: player is on the floor and presses spacebar/player is in air and touches floor
@@ -75,6 +76,9 @@ func _physics_process(delta):
 	if _state == States.BUFFER:
 		jump_timer += delta
 		#is_coyote_time = false # THIS IS WHERE THE COYOTE TIME BUG WAS OMG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
+	if _state == States.IN_AIR and not is_falling:
+		velocity.y = clamp(velocity.y, JUMP_VELOCITY, -JUMP_VELOCITY) # one more bug fix!
 	
 	if is_landed:
 		coyote_time = 0.0
