@@ -1,3 +1,9 @@
 # Godot 4+ specific ignores
 .godot/
 addons/
+images/banner.png
+images/banner.png.import
+images/icon.png
+images/icon.png.import
+images/icon_big.png
+images/icon_big.png.import

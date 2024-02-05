@@ -17,8 +17,7 @@ You do it again, but you are slower. The mood isn't as cheery. Environmental eff
 You hurt your head again.
 
 Less people are in the hospital. You get out, again. Even slower. Not cheery at all.
-No people in the hospital. A letter from your wife: "I'm sorry, but we cannot keep 
-watching you do this to yourself. I hope you will get better one day. I love you."
+No people in the hospital.
 
 You get out. Maybe a scene in your apartment? You do it again.
 
@@ -45,7 +44,7 @@ Ok, I need to focus a bit on the scope of the game. What I need:
 		- done: all
 	- camera controller: static
 		- done: camera, static
-	- one level (A) with: one type of static platforms, one trap, one "power-up" that triggers the "cutscenes"
+	- one level (A) with: one type of static platforms, one trap, one "power-up" that triggers the "cutscenes", collectibles
 		- done:
 	- one hospital level (B0) with family NPCs
 		- done:
@@ -55,3 +54,20 @@ Ok, I need to focus a bit on the scope of the game. What I need:
 		- done:
 	- art for: character, platform, level A background, level B0, family, letter, trap, power-up, main menu
 		- done:
+
+Synopsis:
+	A bus arrives at some junkyard type location. The backdrop is a city skyline. You have a short dialogue with a guard
+	"You again? What the hell are you even doing in there? You know what, I don't even wanna know."
+	You enter the level. You have a clear goal in right side of the level - the powerup. You traverse the level, collecting X stars. 
+	Some are difficult to get. You hit the powerup by jumping into it, cutscene. An ambulance comes, takes you to the hospital.
+	There is a cutscene - your family & friends all surround you. You have a dialogue with them.
+	"I want you to remember, we all care and love you! Just rest now, see you tomorrow"
+	Tomorrow. Again in the junkyard. This time you're slower. Perhaps you can't collect all the stars anymore. Perhaps 
+	you have trouble when landing on the ground. Again, the same deal. Back in the hospital. Less people there. Your wife & kids.
+	"Why do you keep doing this to yourself? We don't understand"
+	Depending on how many stars you collected, you say:
+	"But baby, I collected X stars in the last level!"
+	"We don't care about the stars, don't you get it?! I'm sorry, but we cannot keep 
+	watching you do this to yourself. I hope you will get better one day. I love you."
+	They leave. Back in the junkyard, for the last time. Super slow this time. There is one goal only. You can't reach the powerup.
+	You jump to your death. Back to the main menu.

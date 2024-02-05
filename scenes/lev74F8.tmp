@@ -1,0 +1,37 @@
+[gd_scene load_steps=4 format=3 uid="uid://dkwvcd3qmsyix"]
+
+[ext_resource type="PackedScene" uid="uid://20rdeb60vqmo" path="res://scenes/platform.tscn" id="1_2xmlx"]
+[ext_resource type="PackedScene" uid="uid://bx0oqtvk82pyq" path="res://scenes/player.tscn" id="2_ovvpu"]
+[ext_resource type="Script" path="res://scenes/Camera.gd" id="3_c0em6"]
+
+[node name="Level" type="Node2D"]
+
+[node name="Platform" parent="." instance=ExtResource("1_2xmlx")]
+position = Vector2(322, 880)
+scale = Vector2(0.225, 1)
+
+[node name="Ground" parent="." instance=ExtResource("1_2xmlx")]
+position = Vector2(908, 949)
+scale = Vector2(55.595, 1)
+
+[node name="Player" parent="." instance=ExtResource("2_ovvpu")]
+position = Vector2(152, 858)
+scale = Vector2(2, 2)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(-1280, 0)
+scale = Vector2(2, 2)
+anchor_mode = 0
+script = ExtResource("3_c0em6")
+
+[node name="Platform5" parent="." instance=ExtResource("1_2xmlx")]
+position = Vector2(454, 881)
+scale = Vector2(0.225, 1)
+
+[node name="Platform2" parent="." instance=ExtResource("1_2xmlx")]
+position = Vector2(565, 811)
+scale = Vector2(0.225, 1)
+
+[node name="Platform3" parent="." instance=ExtResource("1_2xmlx")]
+position = Vector2(711, 749)
+scale = Vector2(0.225, 1)

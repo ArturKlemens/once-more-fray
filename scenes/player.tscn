@@ -11,8 +11,10 @@ script/source = "extends CharacterBody2D
 @export var AIR_BRAKE: float = 0.75
 
 @export var GRAVITY_UP_FACTOR: float = 0.85 # when before jump apex
-@export var GRAVITY_DOWN_FACTOR: float = 1.5 # when past jump apex
-@export var TERMINAL_VELOCITY_MULTIPLIER: float = 1.5 # when in free fall
+@export var GRAVITY_DOWN_FACTOR: float = 1.25 # when past jump apex
+@export var TERMINAL_VELOCITY_MULTIPLIER: float = 3 # when in free fall
+@export var TERMINAL_VELOCITY_DURATION_MAX: float = 0.5 # how long until terminal velocity acts
+var terminal_duration: float
 
 # This is a perfect case for a state machine (2 states - on floor / not on floor) and 
 # a transition (on floor -> not on floor)
@@ -46,6 +48,8 @@ var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
 enum States {ON_FLOOR, IN_AIR, BUFFER}
 var _state : int = States.ON_FLOOR
 
+var allow_input: bool = true
+
 func change_state(new_state: int, jump_timer: float = 0.0) -> void:
 	var _previous_state := _state
 	_state = new_state
@@ -67,20 +71,19 @@ func change_state(new_state: int, jump_timer: float = 0.0) -> void:
 func _physics_process(delta):
 	# Add the gravity.
 	# Define what a jump/land is: player is on the floor and presses spacebar/player is in air and touches floor
-	#print(coyote_time, is_coyote_time)
-	var is_jumping: bool = _state == States.ON_FLOOR and Input.is_action_just_pressed(\"ui_accept\")
+	var is_jumping: bool = _state == States.ON_FLOOR and allow_input and Input.is_action_just_pressed(\"jump\")
 	var is_landed: bool = ( _state == States.IN_AIR or _state == States.BUFFER ) and is_on_floor()
-	var is_buffer: bool = _state == States.IN_AIR and Input.is_action_just_pressed(\"ui_accept\") and not is_coyote_time  # THIS IS WHERE THE COYOTE TIME BUG WAS OMG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	var is_falling: bool = _state == States.ON_FLOOR and velocity.y != 0 and not is_jumping
-	
+	var is_buffer: bool = _state == States.IN_AIR and allow_input and Input.is_action_just_pressed(\"jump\") and not is_coyote_time  # THIS IS WHERE THE COYOTE TIME BUG WAS OMG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	var is_falling: bool = velocity.y > 0 and not is_jumping 
 	if _state == States.BUFFER:
 		jump_timer += delta
 		#is_coyote_time = false # THIS IS WHERE THE COYOTE TIME BUG WAS OMG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
-	if _state == States.IN_AIR and not is_falling:
-		velocity.y = clamp(velocity.y, JUMP_VELOCITY, -JUMP_VELOCITY) # one more bug fix!
-	
+	if _state == States.IN_AIR and is_falling:
+		terminal_duration += delta
+
 	if is_landed:
+		terminal_duration = 0.0
 		coyote_time = 0.0
 		change_state(0)
 		_squish_land()
@@ -111,6 +114,8 @@ func _physics_process(delta):
 			velocity.y += gravity * delta * GRAVITY_UP_FACTOR
 		if velocity.y >= 0:
 			velocity.y += gravity * delta * GRAVITY_DOWN_FACTOR
+		if velocity.y >= 0 and terminal_duration > TERMINAL_VELOCITY_DURATION_MAX:
+			velocity.y += gravity * delta * TERMINAL_VELOCITY_MULTIPLIER
 
 	# How to implement different gravity in an arc shape?
 	# the player has a position Y, when they jump, Y increases
@@ -122,20 +127,19 @@ func _physics_process(delta):
 	# Solution: velocity.y is always negative while going up, and then positive while falling
 
 	# Terminal velocity while falling
-	velocity.y = clamp(velocity.y, JUMP_VELOCITY, -JUMP_VELOCITY * TERMINAL_VELOCITY_MULTIPLIER)
+	velocity.y = clamp(velocity.y, JUMP_VELOCITY * GRAVITY_UP_FACTOR, -JUMP_VELOCITY * TERMINAL_VELOCITY_MULTIPLIER * GRAVITY_DOWN_FACTOR)
 
 	# Handle jump.
-	if ( Input.is_action_just_pressed(\"ui_accept\") ) and ( is_on_floor() or is_coyote_time ):
+	if ( Input.is_action_just_pressed(\"jump\") ) and ( is_on_floor() or is_coyote_time ) and allow_input:
 		change_state(1)
-		#print(\"A\")
 		_jump()
 
 
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
-	var direction = Input.get_axis(\"ui_left\", \"ui_right\")
+	var direction = Input.get_axis(\"left\", \"right\")
 	
-	if direction:
+	if direction and allow_input:
 		# Acceleration
 		accel_speed += ACCEL * delta
 		if accel_speed > SPEED:
@@ -151,10 +155,11 @@ func _physics_process(delta):
 	move_and_slide()
 
 func _jump():
-		is_jump_buffered = false
 		velocity.y = JUMP_VELOCITY
 		is_coyote_time = false
+		is_jump_buffered = false
 		coyote_time = 0.0
+		#terminal_duration = 0.0
 
 # Squish sprite when jumping
 func _squish_jump():
@@ -200,8 +205,10 @@ animations = [{
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="."]
 script = SubResource("GDScript_5cdeg")
-SPEED = 350.0
+SPEED = 550.0
 JUMP_VELOCITY = -400.0
+COYOTE_MAX_TIME = 0.1
+JUMP_BUFFER_DURATION = 0.15
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
 shape = SubResource("RectangleShape2D_6l5xa")

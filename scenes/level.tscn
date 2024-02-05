@@ -1,26 +1,105 @@
-[gd_scene load_steps=3 format=3 uid="uid://dkwvcd3qmsyix"]
+[gd_scene load_steps=5 format=3 uid="uid://dkwvcd3qmsyix"]
 
 [ext_resource type="PackedScene" uid="uid://20rdeb60vqmo" path="res://scenes/platform.tscn" id="1_2xmlx"]
+[ext_resource type="Script" path="res://scenes/level.gd" id="1_gsci8"]
 [ext_resource type="PackedScene" uid="uid://bx0oqtvk82pyq" path="res://scenes/player.tscn" id="2_ovvpu"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rdnod"]
+size = Vector2(470, 446)
+
 [node name="Level" type="Node2D"]
+script = ExtResource("1_gsci8")
 
-[node name="Platform" parent="." instance=ExtResource("1_2xmlx")]
-position = Vector2(188, 638)
+[node name="Ground" type="Node" parent="."]
 
-[node name="Platform2" parent="." instance=ExtResource("1_2xmlx")]
-position = Vector2(579, 579)
+[node name="Ground" parent="Ground" instance=ExtResource("1_2xmlx")]
+position = Vector2(-2248, 949)
+scale = Vector2(12.035, 1)
 
-[node name="Platform3" parent="." instance=ExtResource("1_2xmlx")]
-position = Vector2(979, 504)
+[node name="Ground2" parent="Ground" instance=ExtResource("1_2xmlx")]
+position = Vector2(426, 949)
+scale = Vector2(2.28, 1)
 
-[node name="Platform4" parent="." instance=ExtResource("1_2xmlx")]
-position = Vector2(865, 696)
-scale = Vector2(6.195, 1)
+[node name="Ground3" parent="Ground" instance=ExtResource("1_2xmlx")]
+position = Vector2(1708, 949)
+scale = Vector2(2.28, 1)
+
+[node name="Ground4" parent="Ground" instance=ExtResource("1_2xmlx")]
+position = Vector2(2990, 483)
+scale = Vector2(2.28, 1)
+
+[node name="Platforms" type="Node" parent="."]
+
+[node name="Platform" parent="Platforms" instance=ExtResource("1_2xmlx")]
+position = Vector2(322, 880)
+scale = Vector2(0.225, 1)
+
+[node name="Platform5" parent="Platforms" instance=ExtResource("1_2xmlx")]
+position = Vector2(454, 881)
+scale = Vector2(0.225, 1)
+
+[node name="Platform2" parent="Platforms" instance=ExtResource("1_2xmlx")]
+position = Vector2(565, 811)
+scale = Vector2(0.225, 1)
+
+[node name="Platform3" parent="Platforms" instance=ExtResource("1_2xmlx")]
+position = Vector2(711, 749)
+scale = Vector2(0.225, 1)
+
+[node name="Death_Area1" type="Node" parent="."]
+
+[node name="Wall1R" parent="Death_Area1" instance=ExtResource("1_2xmlx")]
+position = Vector2(2574, 1366)
+rotation = 1.5708
+scale = Vector2(2.28, 1)
+
+[node name="Wall1R2" parent="Death_Area1" instance=ExtResource("1_2xmlx")]
+position = Vector2(2574, 898)
+rotation = 1.5708
+scale = Vector2(2.28, 1)
+
+[node name="Wall1L" parent="Death_Area1" instance=ExtResource("1_2xmlx")]
+position = Vector2(2124, 1366)
+rotation = 1.5708
+scale = Vector2(2.28, 1)
+
+[node name="Death1" type="Area2D" parent="Death_Area1"]
+position = Vector2(2348, 1570)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Death_Area1/Death1"]
+shape = SubResource("RectangleShape2D_rdnod")
+
+[node name="Death_Area2" type="Node" parent="."]
+
+[node name="Wall2R" parent="Death_Area2" instance=ExtResource("1_2xmlx")]
+position = Vector2(1292, 1366)
+rotation = 1.5708
+scale = Vector2(2.28, 1)
+
+[node name="Wall2L" parent="Death_Area2" instance=ExtResource("1_2xmlx")]
+position = Vector2(842, 1366)
+rotation = 1.5708
+scale = Vector2(2.28, 1)
+
+[node name="Death2" type="Area2D" parent="Death_Area2"]
+position = Vector2(1066, 1570)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Death_Area2/Death2"]
+shape = SubResource("RectangleShape2D_rdnod")
+
+[node name="Waypoints" type="Node" parent="."]
+
+[node name="position_1" type="Node2D" parent="Waypoints"]
+position = Vector2(-973, 926)
+
+[node name="position_2" type="Node2D" parent="Waypoints"]
+position = Vector2(2305, 87)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(371, 298)
+scale = Vector2(2, 2)
+anchor_mode = 0
 
 [node name="Player" parent="." instance=ExtResource("2_ovvpu")]
-position = Vector2(110, 618)
-
-[node name="Camera2D" type="Camera2D" parent="Player"]
-position = Vector2(287, -127)
-zoom = Vector2(1.48, 1.48)
+position = Vector2(582, 902)
+scale = Vector2(2, 2)
